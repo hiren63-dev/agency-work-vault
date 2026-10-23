@@ -1,0 +1,112 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BuddyDesk — Cloud Storage rules
+//
+// Previously this file allowed ANY signed-in user to read, overwrite and delete
+// EVERY object in the bucket. These rules scope access by path instead.
+//
+// NOTE: at the time of writing the app does not upload anything yet (firebase.js
+// exports `storage`, but no component calls uploadBytes/ref). The path layout
+// below is the conservative structure the app should adopt:
+//
+//   users/{userId}/...        personal files + avatar   (owner writes)
+//   chats/{chatId}/...        chat attachments          (chat members write)
+//   resources/...             shared company library    (admin/founder writes)
+//   anything else             denied
+//
+// If you introduce a new upload path, add an explicit match block for it —
+// there is no catch-all any more, so unlisted paths fail closed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ─── Helpers ────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid))
+             .data.get('role', 'employee') in ['admin', 'founder'];
+    }
+
+    function isChatMember(chatId) {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/chats/$(chatId))
+        && request.auth.uid in firestore.get(/databases/(default)/documents/chats/$(chatId))
+             .data.get('members', []);
+    }
+
+    // Deletes carry no request.resource — only guard size/type on writes.
+    function isDelete() {
+      return request.resource == null;
+    }
+
+    function underSize(maxBytes) {
+      return isDelete() || request.resource.size < maxBytes;
+    }
+
+    // Documents, images and archives only. Explicitly keeps out executables and
+    // scripts, which have no business in an internal file share.
+    function isAllowedType() {
+      return isDelete()
+        || request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp|svg\+xml|heic)')
+        || request.resource.contentType.matches('video/(mp4|webm|quicktime)')
+        || request.resource.contentType.matches('audio/(mpeg|mp4|webm|ogg|wav)')
+        || request.resource.contentType == 'application/pdf'
+        || request.resource.contentType.matches('text/(plain|csv|markdown)')
+        || request.resource.contentType.matches(
+             'application/(msword|vnd[.]ms-excel|vnd[.]ms-powerpoint|rtf|zip|x-zip-compressed|vnd[.]openxmlformats-officedocument[.].*)');
+    }
+
+    // ─── Per-user files (avatars, personal uploads) ─────────────────────────
+    // Readable by the team (the directory shows avatars), writable only by the
+    // owner — or an admin, for moderation/cleanup.
+    // The avatar is deliberately team-readable — the directory displays it.
+    match /users/{userId}/avatar/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if (isOwner(userId) || isAdmin())
+        && underSize(5 * 1024 * 1024)
+        && isAllowedType();
+    }
+
+    // Everything else under a person's folder is private to them. The previous
+    // rule granted `read: if isSignedIn()` across `{allPaths=**}`, so any
+    // employee could read every colleague's personal uploads — the comment said
+    // "avatars", but the path covered all of their files.
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if (isOwner(userId) || isAdmin())
+        && underSize(10 * 1024 * 1024)
+        && isAllowedType();
+    }
+
+    // ─── Chat attachments ───────────────────────────────────────────────────
+    // Only members of that chat, per the chat doc's `members` array in Firestore.
+    match /chats/{chatId}/{allPaths=**} {
+      allow read: if isChatMember(chatId) || isAdmin();
+      allow write: if (isChatMember(chatId) || isAdmin())
+        && underSize(10 * 1024 * 1024)
+        && isAllowedType();
+    }
+
+    // ─── Shared company resource library ────────────────────────────────────
+    // Everyone on the team can read; only admin/founder can publish or remove.
+    match /resources/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin()
+        && underSize(25 * 1024 * 1024)
+        && isAllowedType();
+    }
+
+    // Everything else: denied by default (no catch-all match block).
+  }
+}

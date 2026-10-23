@@ -1,0 +1,321 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", "Inter Display", "Clash Display", "Satoshi", sans-serif;
+  --font-serif: "Instrument Serif", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-highlight: rgba(255, 255, 255, 0.12);
+  --color-background: #050505;
+  --color-foreground: #ffffff;
+  --color-muted: #888888;
+}
+
+@layer base {
+  :root {
+    --background: #050505;
+    --foreground: #ffffff;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    html, body {
+      cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5 L24 12 L15 15 L11 24 Z" fill="%23050505" stroke="%23ffffff" stroke-width="2" stroke-linejoin="round"/></svg>') 5 5, auto;
+    }
+
+    a, button, input, select, textarea, [role="button"], .cursor-pointer, [class*="cursor-pointer"] {
+      cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5 L24 12 L15 15 L11 24 Z" fill="%23ffffff" stroke="%23050505" stroke-width="2.5" stroke-linejoin="round"/></svg>') 5 5, pointer !important;
+    }
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-white selection:text-black;
+    /* Noise texture overlay */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tighter;
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .text-box-trim {
+    text-box-trim: both;
+    text-box-edge: cap alphabetic;
+  }
+  
+  .glass-card {
+    @apply bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl relative overflow-hidden;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  }
+  
+  .blob {
+    @apply absolute rounded-full opacity-30 mix-blend-screen;
+    filter: blur(150px);
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% - 1rem)); }
+  }
+  
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+}
+
+
+.light-theme {
+  --background: #f8f9fa;
+  --foreground: #050505;
+}
+
+.light-theme .bg-\[\#050505\], 
+.light-theme .bg-\[\#020202\], 
+.light-theme .bg-\[\#0a0a0a\],
+.light-theme .bg-zinc-950,
+.light-theme .bg-black {
+  background-color: var(--background) !important;
+}
+
+.light-theme .text-white {
+  color: var(--foreground) !important;
+}
+
+.light-theme .text-white\/30,
+.light-theme .text-white\/40,
+.light-theme .text-white\/45,
+.light-theme .text-white\/50,
+.light-theme .text-white\/55,
+.light-theme .text-white\/60,
+.light-theme .text-white\/80 {
+  color: rgba(5, 5, 5, 0.65) !important;
+}
+
+.light-theme .border-white\/5,
+.light-theme .border-white\/10,
+.light-theme .border-white\/20,
+.light-theme .border-white\/25,
+.light-theme .border-white\/30 {
+  border-color: rgba(5, 5, 5, 0.15) !important;
+}
+
+.light-theme .bg-white\/5,
+.light-theme .bg-white\/10,
+.light-theme .bg-white\/15,
+.light-theme .bg-white\/20,
+.light-theme .bg-white\/25,
+.light-theme .bg-white\/30 { 
+  background-color: #ffffff !important; 
+  box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02) !important;
+}
+.light-theme .border-white\/5,
+.light-theme .border-white\/10,
+.light-theme .border-white\/15,
+.light-theme .border-white\/20,
+.light-theme .border-white\/25,
+.light-theme .border-white\/30,
+.light-theme .border-white\/35,
+.light-theme .border-white\/40,
+.light-theme .border-white\/45,
+.light-theme .border-white\/50,
+.light-theme .border-white\/55,
+.light-theme .border-white\/60,
+.light-theme .border-white\/65,
+.light-theme .border-white\/70,
+.light-theme .border-white\/75,
+.light-theme .border-white\/80,
+.light-theme .border-white\/85,
+.light-theme .border-white\/90,
+.light-theme .border-white\/95 { border-color: rgba(5, 5, 5, 0.15) !important; }
+
+.light-theme .blob { mix-blend-mode: multiply !important; }
+
+.light-theme .bg-\\[\\#050505\\]\\/80 { background-color: rgba(248, 249, 250, 0.8) !important; }
+.light-theme .bg-\\[\\#050505\\]\\/95 { background-color: rgba(248, 249, 250, 0.95) !important; }
+
+.light-theme .bg-\[\#050505\]\/80 { background-color: rgba(248, 249, 250, 0.8) !important; }
+.light-theme .bg-black\/40,
+.light-theme .bg-black\/30,
+.light-theme .bg-black\/20,
+.light-theme .bg-[rgba\(0\,0\,0\,0\.4\)] {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+}
+.light-theme .bg-\[\#050505\]\/95 { background-color: rgba(248, 249, 250, 0.95) !important; }
+
+.light-theme .to-\\[\\#022c22\\] { --tw-gradient-to: rgba(209, 250, 229, 0.5) !important; }
+.light-theme .via-\\[\\#065f46\\] { --tw-gradient-via: rgba(167, 243, 208, 0.5) !important; }
+.light-theme .from-\\[\\#047857\\] { --tw-gradient-from: rgba(110, 231, 183, 0.5) !important; }
+.light-theme .to-\\[\\#451a03\\] { --tw-gradient-to: rgba(254, 243, 199, 0.5) !important; }
+.light-theme .via-\\[\\#92400e\\] { --tw-gradient-via: rgba(253, 230, 138, 0.5) !important; }
+.light-theme .from-\\[\\#b45309\\] { --tw-gradient-from: rgba(252, 211, 77, 0.5) !important; }
+
+/* Light theme specific gradient overrides for team section hover */
+.light-theme .to-\[\#022c22\] { --tw-gradient-to: rgba(209, 250, 229, 0.5) !important; }
+.light-theme .via-\[\#065f46\] { --tw-gradient-via: rgba(167, 243, 208, 0.5) !important; }
+.light-theme .from-\[\#047857\] { --tw-gradient-from: rgba(110, 231, 183, 0.5) !important; }
+.light-theme .to-\[\#451a03\] { --tw-gradient-to: rgba(254, 243, 199, 0.5) !important; }
+.light-theme .via-\[\#92400e\] { --tw-gradient-via: rgba(253, 230, 138, 0.5) !important; }
+.light-theme .from-\[\#b45309\] { --tw-gradient-from: rgba(252, 211, 77, 0.5) !important; }
+
+
+/* Hover text overrides for Light Mode */
+.light-theme .hover\:text-white:hover { color: var(--foreground) !important; }
+.light-theme .group:hover .group-hover\:text-white { color: var(--foreground) !important; }
+.light-theme .focus\:text-white:focus { color: var(--foreground) !important; }
+
+
+/* Beam fixes for Light Mode */
+.light-theme .from-white { --tw-gradient-from: #050505 !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.light-theme .shadow-\[0_0_15px_rgba\(255\,255\,255\,0\.4\)\] { box-shadow: 0 0 15px rgba(5,5,5,0.4) !important; }
+
+.light-theme .hover\:bg-gray-200:hover, .light-theme .hover\:bg-gray-100:hover { background-color: #1a1a1a !important; }
+
+/* Button hover fixes for Light Mode */
+.light-theme .hover\:bg-gray-200:hover, .light-theme .hover\:bg-gray-100:hover { background-color: #1a1a1a !important; }
+
+/* Option dropdown fixes for Light Mode */
+.light-theme option { background-color: var(--background) !important; color: var(--foreground) !important; }
+.light-theme select { background-color: rgba(5,5,5,0.05) !important; border-color: rgba(5,5,5,0.1) !important; color: var(--foreground) !important; }
+
+.light-theme .from-black { --tw-gradient-from: #f8f9fa !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.light-theme .via-black\/80 { --tw-gradient-via: rgba(248, 249, 250, 0.8) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important; }
+
+/* =========================================================
+   TASTE ARCHITECT OVERRIDES FOR LIGHT MODE
+   ========================================================= */
+.light-theme .bg-white\/5,
+.light-theme .bg-white\/10,
+.light-theme .bg-white\/15,
+.light-theme .bg-white\/20,
+.light-theme .bg-white\/25,
+.light-theme .bg-white\/30 { 
+  background-color: #ffffff !important; 
+  box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.04) !important;
+}
+
+/* Fix for form inputs and code blocks which used bg-black/40 in dark mode */
+.light-theme .bg-black\/40,
+.light-theme .bg-black\/30,
+.light-theme .bg-black\/20,
+.light-theme .bg-zinc-700,
+.light-theme .bg-zinc-800 {
+  background-color: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+}
+
+/* Fix gradient overlays on images */
+.light-theme .from-black { 
+  --tw-gradient-from: #f8f9fa !important; 
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; 
+}
+.light-theme .via-black\/80 { 
+  --tw-gradient-via: rgba(248, 249, 250, 0.8) !important; 
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important; 
+}
+
+/* Fix text for colored badges (Red/Emerald) so they don't turn black in light mode */
+.light-theme .bg-red-500, .light-theme .bg-emerald-500, .light-theme .bg-purple-500 {
+  color: #ffffff !important;
+}
+.light-theme .bg-red-500 .text-white, .light-theme .bg-emerald-500 .text-white {
+  color: #ffffff !important;
+}
+
+/* Specific fix for the 'Experience Across Sectors' borders */
+.light-theme .border-white\/5 {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Tax Sandbox Fixes */
+.light-theme .bg-white\[0\.02\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+.light-theme .text-white\/60 {
+  color: rgba(0,0,0,0.6) !important;
+}
+
+.light-theme .text-white\/5,
+.light-theme .text-white\/10,
+.light-theme .text-white\/15,
+.light-theme .text-white\/20,
+.light-theme .text-white\/25,
+.light-theme .text-white\/30,
+.light-theme .text-white\/35,
+.light-theme .text-white\/40,
+.light-theme .text-white\/45,
+.light-theme .text-white\/50,
+.light-theme .text-white\/55,
+.light-theme .text-white\/60,
+.light-theme .text-white\/65,
+.light-theme .text-white\/70,
+.light-theme .text-white\/75,
+.light-theme .text-white\/80,
+.light-theme .text-white\/85,
+.light-theme .text-white\/90,
+.light-theme .text-white\/95 {
+  color: rgba(5, 5, 5, 0.7) !important;
+}
+
+/* Fix for Tax Sandbox emerald text in light mode */
+.light-theme .text-emerald-100\/80 {
+  color: #047857 !important;
+}
+
+/* Fix muddy gradients */
+.gradient-mask-t {
+  background: linear-gradient(to top, var(--background) 0%, rgba(5,5,5,0) 100%);
+}
+.light-theme .gradient-mask-t {
+  background: linear-gradient(to top, var(--background) 0%, rgba(248,249,250,0) 100%);
+}
+
+.gradient-mask-t-team {
+  background: linear-gradient(to top, var(--background) 0%, color-mix(in srgb, var(--background) 90%, transparent) 25%, rgba(5,5,5,0) 50%);
+}
+.light-theme .gradient-mask-t-team {
+  background: linear-gradient(to top, var(--background) 0%, color-mix(in srgb, var(--background) 95%, transparent) 30%, rgba(248,249,250,0) 60%);
+}
+
+.gradient-mask-r {
+  background: linear-gradient(to right, var(--background) 0%, rgba(5,5,5,0) 100%);
+}
+.light-theme .gradient-mask-r {
+  background: linear-gradient(to right, var(--background) 0%, rgba(248,249,250,0) 100%);
+}
+
+.gradient-mask-l {
+  background: linear-gradient(to left, var(--background) 0%, rgba(5,5,5,0) 100%);
+}
+.light-theme .gradient-mask-l {
+  background: linear-gradient(to left, var(--background) 0%, rgba(248,249,250,0) 100%);
+}
+
+/* Premium Timeline Animations */
+.timeline-track {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.light-theme .timeline-track {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: none !important;
+}
+
+.timeline-beam {
+  background: linear-gradient(to bottom, #10b981, transparent);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+}
+
+:root { --dot-bg: #050505; --dot-border: rgba(255,255,255,0.2); }
+.light-theme { --dot-bg: #ffffff; --dot-border: rgba(0,0,0,0.15); }
+.timeline-dot { background-color: var(--dot-bg); border-color: var(--dot-border); }
+
+.timeline-dot-active {
+  background-color: #10b981 !important;
+  border-color: #059669 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4) !important;
+}

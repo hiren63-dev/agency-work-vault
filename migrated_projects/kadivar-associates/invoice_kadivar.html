@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - Kadivar & Associates - Web Architecture Handover</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .invoice-container {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      padding: 48px 56px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07);
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Subtle top accent bar */
+    .invoice-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #0f172a 0%, #334155 50%, #e2e8f0 100%);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 28px;
+      border-bottom: 1.5px solid #0f172a;
+      margin-bottom: 32px;
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .invoice-meta {
+      text-align: right;
+    }
+
+    .invoice-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .meta-row strong {
+      color: #0f172a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Parties Section */
+    .parties-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .party-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 18px 20px;
+      border-radius: 6px;
+    }
+
+    .party-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #64748b;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .party-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .party-details {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    /* Table */
+    .table-container {
+      margin-bottom: 28px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 10px 14px;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    thead th:last-child {
+      text-align: right;
+    }
+
+    tbody td {
+      padding: 14px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12.5px;
+      vertical-align: top;
+    }
+
+    tbody td:last-child {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .item-title {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .item-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    /* Summary & Totals */
+    .totals-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      margin-bottom: 28px;
+    }
+
+    .payment-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 18px 20px;
+    }
+
+    .payment-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .upi-pill {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .upi-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+    }
+
+    .upi-tag {
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.15);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    .bank-details-list {
+      font-size: 11px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .bank-details-list span {
+      font-family: 'JetBrains Mono', monospace;
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    .totals-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 16px 20px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .calc-row strong {
+      font-family: 'JetBrains Mono', monospace;
+      color: #0f172a;
+    }
+
+    .calc-row.total-row {
+      border-top: 1.5px solid #0f172a;
+      padding-top: 10px;
+      margin-top: 4px;
+      font-size: 13px;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .calc-row.advance-row {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 10px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      margin-bottom: 0;
+      color: #166534;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .calc-row.advance-row strong {
+      color: #15803d;
+      font-size: 15px;
+    }
+
+    /* Terms */
+    .terms-section {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+      font-size: 10.5px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .terms-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .terms-list {
+      padding-left: 14px;
+    }
+
+    .terms-list li {
+      margin-bottom: 3px;
+    }
+
+    /* Footer Signatures */
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .sig-block {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .sig-name {
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 24px;
+      border-top: 1px solid #94a3b8;
+      padding-top: 4px;
+      display: inline-block;
+      min-width: 160px;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+      .invoice-container {
+        border: none;
+        box-shadow: none;
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="invoice-container">
+    <div>
+      <!-- Header -->
+      <div class="header">
+        <div>
+          <div class="brand-title">Hiren Chhaniyara</div>
+          <div class="brand-subtitle">Web Engineering & Digital Systems</div>
+        </div>
+        <div class="invoice-meta">
+          <div class="invoice-badge">PROFORMA / ADVANCE INVOICE</div>
+          <div class="meta-row">Invoice No: <strong>INV-2026-KA01</strong></div>
+          <div class="meta-row">Date: <strong>August 31, 2026</strong></div>
+          <div class="meta-row">Project: <strong>Kadivar & Associates Web Architecture</strong></div>
+        </div>
+      </div>
+
+      <!-- Parties -->
+      <div class="parties-grid">
+        <div class="party-card">
+          <div class="party-label">Billed To</div>
+          <div class="party-name">Kadivar & Associates</div>
+          <div class="party-details">
+            <strong>Attn: CA Irfan Kadivar</strong> (Principal Partner)<br>
+            Office 1108, R K World Tower, Near Shital Park Chowk,<br>
+            150 Feet Ring Road, Rajkot, Gujarat – 360006<br>
+            Phone: +91 90162 84892 | Email: info@kadivar.co
+          </div>
+        </div>
+
+        <div class="party-card">
+          <div class="party-label">Issued By</div>
+          <div class="party-name">Hiren Chhaniyara</div>
+          <div class="party-details">
+            Full-Stack Web Architect & Systems Engineer<br>
+            Rajkot, Gujarat, India<br>
+            Email: chhaniyarahiren63@gmail.com<br>
+            UPI ID: chhaniyarahiren63@okhdfcbank
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope of Work Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 8%;">#</th>
+              <th style="width: 72%;">Deliverable Scope & Technical Specifications</th>
+              <th style="width: 20%;">Amount (INR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>01</td>
+              <td>
+                <div class="item-title">Next.js 16 Web Architecture & Modern Luxury Interface</div>
+                <div class="item-desc">
+                  Custom high-speed web application built on Next.js 16 (Turbopack, TypeScript, Tailwind CSS). Sub-second load speed, mobile-responsive layout (375px–1440px), custom typography, and dark palette designed specifically for corporate/institutional credibility.
+                </div>
+              </td>
+              <td>₹7,500</td>
+            </tr>
+            <tr>
+              <td>02</td>
+              <td>
+                <div class="item-title">ICAI Code of Ethics Regulatory Compliance System</div>
+                <div class="item-desc">
+                  Complete audit & purge of solicitation language, client testimonials, superlative claims, and rankings to ensure 100% compliance with ICAI regulations. Includes legal routes: Privacy Policy (DPDP Act 2023), Terms of Service, and ICAI Non-Solicitation Disclaimer.
+                </div>
+              </td>
+              <td>₹3,500</td>
+            </tr>
+            <tr>
+              <td>03</td>
+              <td>
+                <div class="item-title">6 Dedicated Practice Area Pages with SOPs & Due Dates</div>
+                <div class="item-desc">
+                  Dynamic routing for 6 core CA services (Tax Planning, Statutory Audit, GST Advisory, Project Finance, Outsourcing, ROC Compliance) with checklists of required documents, statutory due dates, standard 4-step operating procedures (SOP), and dedicated enquiry capture.
+                </div>
+              </td>
+              <td>₹3,000</td>
+            </tr>
+            <tr>
+              <td>04</td>
+              <td>
+                <div class="item-title">Technical SEO, Google Schema & Conversion Mechanics</div>
+                <div class="item-desc">
+                  Dynamic <code>AccountingService</code> JSON-LD Schema for Google Knowledge Graph, dynamic <code>sitemap.xml</code>, <code>robots.ts</code>, Open Graph / WhatsApp share preview cards, sticky mobile Click-to-Call / WhatsApp bar, and Vercel Analytics event tracking.
+                </div>
+              </td>
+              <td>₹2,500</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals & Payment Grid -->
+      <div class="totals-grid">
+        <!-- Payment Details -->
+        <div class="payment-box">
+          <div class="payment-title">Payment Methods & Direct Remittance</div>
+          
+          <div class="upi-pill">
+            <div>
+              <div style="font-size: 9px; color: #94a3b8; text-transform: uppercase;">Instant UPI Transfer</div>
+              <div class="upi-id">chhaniyarahiren63@okhdfcbank</div>
+            </div>
+            <div class="upi-tag">Instant Confirm</div>
+          </div>
+
+          <div class="bank-details-list">
+            <div>Account Holder: <span>Hiren Chhaniyara</span></div>
+            <div>Bank Name: <span>HDFC Bank</span></div>
+            <div>Account Number: <span>50100424564883</span></div>
+            <div>IFSC Code: <span>HDFC0000102</span></div>
+            <div>Branch: <span>Rajkot, Gujarat</span></div>
+          </div>
+        </div>
+
+        <!-- Calculated Totals -->
+        <div class="totals-box">
+          <div class="calc-row">
+            <span>Total Project Valuation:</span>
+            <strong>₹16,500.00</strong>
+          </div>
+          <div class="calc-row">
+            <span>Applicable Taxes / GST:</span>
+            <strong>₹0.00 (Exempt)</strong>
+          </div>
+          <div class="calc-row total-row">
+            <span>Net Contract Value:</span>
+            <strong>₹16,500.00</strong>
+          </div>
+          <div class="calc-row advance-row">
+            <span>50% Mobilization Advance Due Now:</span>
+            <strong>₹8,250.00</strong>
+          </div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 6px; text-align: right;">
+            Balance ₹8,250.00 payable upon domain connection & final production sign-off.
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="terms-section">
+        <div class="terms-title">Handover Terms & Conditions</div>
+        <ol class="terms-list">
+          <li><strong>Mobilization Advance:</strong> Project deployment, DNS configuration, and live production staging commence upon realization of the 50% advance (₹8,250).</li>
+          <li><strong>Production Handover:</strong> Full source code ownership, repository access, and live domain DNS pointing will be handed over upon realization of the remaining 50% balance.</li>
+          <li><strong>Regulatory Integrity:</strong> The platform is constructed to preserve the dignity of the Chartered Accountancy profession in accordance with the ICAI Code of Ethics (Clauses 6 & 7 of Part 1 of First Schedule).</li>
+          <li><strong>Post-Launch Support:</strong> Includes 30 days of complimentary technical support for content refinements, statutory due date updates, and minor text adjustments.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="signatures">
+      <div class="sig-block">
+        <div>Prepared with precision by:</div>
+        <div class="sig-name">Hiren Chhaniyara</div>
+        <div style="font-size: 9.5px; color: #94a3b8;">Full-Stack Engineer & Consultant</div>
+      </div>
+      <div class="sig-block" style="text-align: right;">
+        <div>Accepted & Approved by:</div>
+        <div class="sig-name">CA Irfan Kadivar</div>
+        <div style="font-size: 9.5px; color: #94a3b8;">For Kadivar & Associates</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

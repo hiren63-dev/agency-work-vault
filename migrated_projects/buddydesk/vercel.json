@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build:renderer",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": null,
+  "rewrites": [
+    { "source": "/mcp", "destination": "/api/index" },
+    { "source": "/authorize", "destination": "/api/index" },
+    { "source": "/token", "destination": "/api/index" },
+    { "source": "/register", "destination": "/api/index" },
+    { "source": "/revoke", "destination": "/api/index" },
+    { "source": "/mcp-login", "destination": "/api/index" },
+    { "source": "/mcp-login/callback", "destination": "/api/index" },
+    { "source": "/.well-known/(.*)", "destination": "/api/index" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

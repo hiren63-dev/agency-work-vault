@@ -1,0 +1,259 @@
+/* ═══════════════════════════════════════════════════════════
+   Tasks · Kanban drag & drop
+   Owned by Tasks.jsx. Nothing here belongs in index.css.
+   Pointer-event based dragging: one code path for mouse,
+   touch and stylus.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Card head: grip + title ─────────────────────────────── */
+.task-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.task-card-head .task-card-title { margin-bottom: 0; flex: 1; min-width: 0; }
+
+/* The drag handle. touch-action:none is what stops the browser
+   from scrolling the column instead of starting a drag. */
+.task-grip {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: -2px 0 0 -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  color: #C9C9C6;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: color 120ms, background 120ms;
+}
+.task-grip:hover { color: var(--text-muted); background: var(--border-light); }
+.task-grip:active { cursor: grabbing; }
+
+/* Bigger thumb target on touch devices. */
+@media (pointer: coarse) {
+  .task-grip { width: 32px; height: 32px; margin: -5px 0 0 -8px; }
+}
+
+/* ── Card states ─────────────────────────────────────────── */
+.tasks-layout .task-card { position: relative; }
+
+.tasks-layout .task-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tasks-layout .task-card { cursor: grab; }
+  body.kanban-is-dragging .tasks-layout .task-card { cursor: grabbing; }
+}
+
+/* The card left behind while its ghost follows the pointer. */
+.tasks-layout .task-card--source {
+  opacity: 0.32;
+  border-style: dashed;
+  background: var(--border-light);
+}
+.task-card--source .task-card-title,
+.task-card--source .task-card-footer { visibility: hidden; }
+
+/* Lands in the new column. */
+@keyframes kanbanLand {
+  0%   { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(17,17,17,0.18); }
+  55%  { transform: scale(1.015); box-shadow: 0 0 0 4px rgba(17,17,17,0.06); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(17,17,17,0); }
+}
+.tasks-layout .task-card--landed {
+  animation: kanbanLand 320ms cubic-bezier(.22,.9,.28,1);
+  border-color: #C8C8C6;
+}
+
+/* ── Drop-target highlight ───────────────────────────────── */
+.tasks-layout .kanban-col { position: relative; transition: background 140ms; }
+.tasks-layout .kanban-col.is-drop-over { background: #F4F6FB; }
+.kanban-col.is-drop-over::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px dashed #9AA6C4;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+}
+
+.kanban-empty {
+  font-size: 12px;
+  color: #BBB;
+  padding: 8px 4px;
+}
+.kanban-col.is-drop-over .kanban-empty { color: #6B7796; font-weight: 500; }
+
+/* Don't let the column scroll-chase the pointer mid-drag. */
+body.kanban-is-dragging { cursor: grabbing; }
+body.kanban-is-dragging,
+body.kanban-is-dragging .task-card,
+body.kanban-is-dragging .kanban-items {
+  -webkit-user-select: none;
+  user-select: none;
+}
+body.kanban-is-dragging .task-card,
+body.kanban-is-dragging .kanban-items { touch-action: none; }
+
+/* ── The ghost that follows the pointer ──────────────────── */
+.kanban-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  pointer-events: none;
+  will-change: transform;
+  animation: kanbanGhostIn 130ms ease-out;
+}
+@keyframes kanbanGhostIn {
+  from { opacity: 0.4; }
+  to   { opacity: 1; }
+}
+.kanban-ghost .task-card {
+  margin-bottom: 0;
+  cursor: grabbing;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.16), 0 2px 6px rgba(0,0,0,0.08);
+  border-color: #C8C8C6;
+  transform: rotate(-1.4deg) scale(1.02);
+}
+
+/* ── "Move to…" menu (touch + keyboard path) ─────────────── */
+.task-move-wrap { position: relative; display: flex; }
+
+/* Portalled to <body> and anchored in viewport coordinates — the column
+   clips its own children, so an in-flow popover would be cut off. */
+.task-move-menu {
+  position: fixed;
+  z-index: 950;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  animation: kanbanMenuIn 130ms ease-out;
+}
+@keyframes kanbanMenuIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.task-move-menu-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 5px 9px 6px;
+}
+.task-move-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.task-move-item:hover { background: var(--border-light); }
+.task-move-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: var(--border-light);
+}
+
+/* ── Narrow screens: one column at a time ────────────────── */
+.kanban-grid.is-single { grid-template-columns: 1fr; }
+.kanban-grid.is-single .kanban-col { border-right: none; }
+
+.kanban-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.kanban-tab {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 140ms, border-color 140ms, color 140ms;
+}
+.kanban-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.kanban-tab.is-active .col-count { background: rgba(255,255,255,0.18); color: #fff; }
+.kanban-tab.is-drop-over {
+  border-color: #9AA6C4;
+  border-style: dashed;
+  background: #F4F6FB;
+  color: #3C4A6B;
+}
+.kanban-tab .col-count { margin-left: 0; }
+
+/* Roomier cards + always-visible controls on phones. */
+@media (max-width: 768px) {
+  .tasks-layout .task-card { padding: 13px 13px 12px; margin-bottom: 9px; }
+  .tasks-layout .task-card-title { font-size: 14px; }
+  .tasks-layout .task-card-footer .cycle-btn { width: 34px; height: 34px; }
+  .tasks-layout .kanban-items { padding: 12px 12px 24px; }
+  .task-move-item { min-height: 46px; font-size: 14px; }
+}
+
+/* Screen-reader-only live region for move announcements. */
+.kanban-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .task-card--landed,
+  .kanban-ghost,
+  .task-move-menu { animation: none; }
+  .kanban-ghost .task-card { transform: none; }
+  .kanban-col,
+  .kanban-tab,
+  .task-grip { transition: none; }
+}

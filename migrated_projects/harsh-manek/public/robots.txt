@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /careers
+Allow: /privacy
+Allow: /terms
+Disallow: /portal/
+Disallow: /portal/login
+Disallow: /portal/leads
+Disallow: /portal/jobs
+Disallow: /portal/applicants
+Disallow: /portal/website
+Disallow: /portal/account
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://harshmanek.com/sitemap.xml
+
+# Crawl-delay (optional, for well-behaved bots)
+Crawl-delay: 2

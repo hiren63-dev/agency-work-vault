@@ -1,0 +1,808 @@
+Created At: 2026-09-08T16:50:20+05:30
+Completed At: 2026-09-08T16:50:20+05:30
+File Path: `file:///c:/Users/zediz/OneDrive/Desktop/antigravity%20projects/harshmanek-portfolio/src/App.tsx`
+Total Lines: 2973
+Total Bytes: 165815
+Showing lines 1 to 800
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
+2: import {
+3:   ArrowRight, ShieldCheck, Lock, FileText,
+4:   Briefcase, CheckCircle2, Mail, 
+5:   Menu, X, Phone,  BookOpen,
+6:   BarChart3, Building2, Landmark, Receipt,
+7:   MessageCircle, User, Clock, MapPin,
+8:   ChevronDown, AlertCircle, AlertTriangle, Flame, Calendar,
+9:   TrendingUp,   Scale, 
+10:   ClipboardList
+11: } from "lucide-react";
+12: import React, { useRef, useState, useEffect, useCallback } from "react";
+13: import { BrowserRouter, Routes, Route, Link, useLocation, useParams } from "react-router-dom";
+14: 
+15: // --- CONSTANTS & PHYSICS ---
+16: const SPRING_HEAVY = { type: "spring", stiffness: 120, damping: 20, mass: 1.2 } as const;
+17: const SPRING_SNAPPY = { type: "spring", stiffness: 240, damping: 26, mass: 1 } as const;
+18: const SPRING_MICRO = { type: "spring", stiffness: 450, damping: 30, mass: 0.8 } as const;
+19: 
+20: // --- WHATSAPP CTA ---
+21: const WA_BASE = "https://wa.me/919033440008?text=Hey%20sir%2C%20I%20have%20a%20query%20regarding%20the%20CA%20consultancy.";
+22: 
+23: // --- WHATSAPP FLOATING BUTTON ---
+24: function WhatsAppFloat() {
+25:   return (
+26:     <motion.a
+27:       href={WA_BASE}
+28:       target="_blank"
+29:       rel="noopener noreferrer"
+30:       initial={{ scale: 0, opacity: 0 }}
+31:       animate={{ scale: 1, opacity: 1 }}
+32:       transition={{ ...SPRING_HEAVY, delay: 1.5 }}
+33:       whileHover={{ scale: 1.12 }}
+34:       whileTap={{ scale: 0.95 }}
+35:       className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-[#25D366] text-white rounded-full pl-4 pr-5 py-3.5 shadow-[0_8px_32px_rgba(37,211,102,0.35)] font-sans font-semibold text-sm"
+36:       aria-label="Chat on WhatsApp"
+37:     >
+38:       {/* WhatsApp icon */}
+39:       <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+40:         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+41:         <path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.507 3.934 1.395 5.612L0 24l6.545-1.366A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.732.979.997-3.648-.235-.374A9.818 9.818 0 012.182 12C2.182 6.579 6.579 2.182 12 2.182S21.818 6.579 21.818 12 17.421 21.818 12 21.818z"/>
+42:       </svg>
+43:       <span>Chat on WhatsApp</span>
+44:     </motion.a>
+45:   );
+46: }
+47: 
+48: // --- CLIENT PORTAL MODAL ---
+49: function ClientPortalModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+50:   useEffect(() => {
+51:     if (open) document.body.style.overflow = "hidden";
+52:     else document.body.style.overflow = "";
+53:     return () => { document.body.style.overflow = ""; };
+54:   }, [open]);
+55: 
+56:   return (
+57:     <AnimatePresence>
+58:       {open && (
+59:         <motion.div
+60:           initial={{ opacity: 0 }}
+61:           animate={{ opacity: 1 }}
+62:           exit={{ opacity: 0 }}
+63:           onClick={onClose}
+64:           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md px-4"
+65:         >
+66:           <motion.div
+67:             initial={{ scale: 0.92, opacity: 0, y: 20 }}
+68:             animate={{ scale: 1, opacity: 1, y: 0 }}
+69:             exit={{ scale: 0.92, opacity: 0, y: 20 }}
+70:             transition={SPRING_SNAPPY}
+71:             onClick={(e) => e.stopPropagation()}
+72:             className="relative w-full max-w-lg bg-[#0d0d0d] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+73:           >
+74:             {/* Accent glow */}
+75:             <div className="absolute top-0 left-0 w-64 h-32 bg-white/5 blur-[80px] rounded-full pointer-events-none" />
+76:             
+77:             <div className="relative z-10 p-8 sm:p-10">
+78:               <button onClick={onClose} className="absolute top-5 right-5 text-white/70 hover:text-white transition-colors">
+79:                 <X className="w-5 h-5" />
+80:               </button>
+81: 
+82:               <div className="flex items-center gap-3 mb-6">
+83:                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+84:                   <Lock className="w-4 h-4 text-white" />
+85:                 </div>
+86:                 <div>
+87:                   <h3 className="text-lg font-['Poppins'] font-bold font-bold text-white tracking-tight">Secure Client Portal</h3>
+88:                   <p className="text-xs font-mono text-white/70 uppercase tracking-widest">Harsh Manek & Co.</p>
+89:                 </div>
+90:               </div>
+91: 
+92:               <div className="space-y-4 mb-8">
+93:                 <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+94:                   <p className="text-sm font-sans text-white/60 leading-relaxed">
+95:                     🔒 Our client portal is being finalized to give you a fully encrypted, bank-grade secure space to upload documents, download filed returns, and track your compliance in real time.
+96:                   </p>
+97:                 </div>
+98:                 <div className="grid grid-cols-2 gap-3">
+99:                   {[
+100:                     { icon: FileText, label: "Document Upload" },
+101:                     { icon: ShieldCheck, label: "AES-256 Encryption" },
+102:                     { icon: BarChart3, label: "Compliance Tracker" },
+103:                     { icon: Clock, label: "Real-Time Status" },
+104:                   ].map(({ icon: Icon, label }) => (
+105:                     <div key={label} className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+106:                       <Icon className="w-4 h-4 text-white/50 flex-shrink-0" />
+107:                       <span className="text-xs font-sans text-white/60">{label}</span>
+108:                     </div>
+109:                   ))}
+110:                 </div>
+111:               </div>
+112: 
+113:               <div className="flex flex-col gap-3">
+114:                 <a
+115:                   href={WA_BASE}
+116:                   target="_blank"
+117:                   rel="noopener noreferrer"
+118:                   className="w-full flex items-center justify-center gap-2.5 h-12 rounded-xl bg-white text-black font-sans font-bold text-sm hover:bg-gray-200 transition-colors"
+119:                 >
+120:                   <MessageCircle className="w-4 h-4" />
+121:                   Request Portal Access via WhatsApp
+122:                 </a>
+123:                 <button
+124:                   onClick={onClose}
+125:                   className="w-full h-12 rounded-xl border border-white/10 text-white/60 hover:text-white hover:border-white/20 font-sans text-sm transition-colors"
+126:                 >
+127:                   Close
+128:                 </button>
+129:               </div>
+130: 
+131:               <p className="mt-4 text-center text-[11px] font-mono text-white/60 uppercase tracking-widest">
+132:                 All data is encrypted in transit & at rest
+133:               </p>
+134:             </div>
+135:           </motion.div>
+136:         </motion.div>
+137:       )}
+138:     </AnimatePresence>
+139:   );
+140: }
+141: 
+142: // --- NAVBAR ---
+143: function Navbar({ onPortalOpen }: { onPortalOpen: () => void }) {
+144:   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+145:   const [scrolled, setScrolled] = useState(false);
+146:   const location = useLocation();
+147: 
+148:   useEffect(() => {
+149:     setMobileMenuOpen(false);
+150:     window.scrollTo(0, 0);
+151:   }, [location.pathname]);
+152: 
+153:   useEffect(() => {
+154:     const handler = () => setScrolled(window.scrollY > 40);
+155:     window.addEventListener("scroll", handler, { passive: true });
+156:     return () => window.removeEventListener("scroll", handler);
+157:   }, []);
+158: 
+159:   return (
+160:     <header className="fixed top-0 w-full z-50 flex flex-col">
+161:       {/* Top Contact Bar */}
+162:       <div className="hidden md:flex justify-end items-center px-6 py-2 bg-[#0a0a0a] border-b border-white/5 w-full">
+163:         <div className="flex items-center gap-5 text-[13px] font-sans text-white/80">
+164:           <a href="tel:+919033440008" className="flex items-center gap-2 hover:text-white transition-colors">
+165:             <Phone className="w-3.5 h-3.5 text-white/60" /> +91-9033440008
+166:           </a>
+167:           <a href="mailto:Harsh.manek@hotmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
+168:             <Mail className="w-3.5 h-3.5 text-white/60" /> Harsh.manek@hotmail.com
+169:           </a>
+170:           <div className="flex items-center gap-4 border-l border-white/10 pl-5">
+171:             <a href="https://wa.me/919033440008" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors text-white/60">
+172:               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.025.507 3.934 1.395 5.612L0 24l6.545-1.366A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.732.979.997-3.648-.235-.374A9.818 9.818 0 012.182 12C2.182 6.579 6.579 2.182 12 2.182S21.818 6.579 21.818 12 17.421 21.818 12 21.818z"/></svg>
+173:             </a>
+174:           </div>
+175:         </div>
+176:       </div>
+177: 
+178:       {/* Main Nav */}
+179:       <nav className={`w-full transition-all duration-500 ${scrolled ? "bg-[#050505]/95 shadow-2xl" : "bg-[#050505]/80"} backdrop-blur-xl border-b border-white/5`}>
+180:         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+181:           <Link to="/" className="font-serif italic text-xl sm:text-2xl tracking-normal text-white">
+182:             Harsh Manek
+183:           </Link>
+184: 
+185:           {/* Desktop Nav */}
+186:           <div className="hidden md:flex items-center gap-6">
+187:             <Link to="/" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Home</Link>
+188:             <a href="/#services" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Services</a>
+189:             <a href="/#tools" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Tools</a>
+190:             <a href="/#experience" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Experience</a>
+191:             <a href="/#team" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Team</a>
+192:             <a href="/#faq" className="text-sm font-sans text-white/60 hover:text-white transition-colors">FAQ</a>
+193:             <Link to="/blog" className="text-sm font-sans text-white/60 hover:text-white transition-colors">Blog</Link>
+194:           </div>
+195: 
+196:           <div className="hidden md:flex items-center gap-3">
+197:             <a
+198:               href={WA_BASE}
+199:               target="_blank"
+200:               rel="noopener noreferrer"
+201:               className="flex items-center gap-2 text-sm font-sans font-medium text-[#25D366] px-4 py-2 rounded-full border border-[#25D366]/30 hover:bg-[#25D366]/10 transition-colors"
+202:             >
+203:               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.025.507 3.934 1.395 5.612L0 24l6.545-1.366A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.373l-.36-.214-3.732.979.997-3.648-.235-.374A9.818 9.818 0 012.182 12C2.182 6.579 6.579 2.182 12 2.182S21.818 6.579 21.818 12 17.421 21.818 12 21.818z"/></svg>
+204:               WhatsApp
+205:             </a>
+206:             <button
+207:               onClick={onPortalOpen}
+208:               className="text-sm font-sans font-medium text-white px-4 py-2 rounded-full border border-white/15 hover:bg-white/5 transition-colors"
+209:             >
+210:               <Lock className="w-3.5 h-3.5 inline mr-1.5 opacity-60" />
+211:               Client Portal
+212:             </button>
+213:           </div>
+214: 
+215:           {/* Mobile Toggle */}
+216:           <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+217:             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+218:           </button>
+219:         </div>
+220: 
+221:         {/* Mobile Menu */}
+222:         <AnimatePresence>
+223:           {mobileMenuOpen && (
+224:             <motion.div
+225:               initial={{ height: 0, opacity: 0 }}
+226:               animate={{ height: "auto", opacity: 1 }}
+227:               exit={{ height: 0, opacity: 0 }}
+228:               className="md:hidden border-t border-white/5 bg-[#050505] overflow-hidden"
+229:             >
+230:               <div className="flex flex-col p-6 gap-4">
+231:                 <Link to="/" className="text-lg font-sans text-white">Home</Link>
+232:                 <a href="/#services" className="text-lg font-sans text-white">Services</a>
+233:                 <a href="/#tools" className="text-lg font-sans text-white">Tools & Calculators</a>
+234:                 <a href="/#experience" className="text-lg font-sans text-white">Experience</a>
+235:                 <a href="/#team" className="text-lg font-sans text-white">Team</a>
+236:                 <a href="/#faq" className="text-lg font-sans text-white">FAQ</a>
+237:                 <Link to="/blog" className="text-lg font-sans text-white">Blog & Insights</Link>
+238:                 <a href={WA_BASE} target="_blank" rel="noopener noreferrer" className="text-lg font-sans text-[#25D366]">WhatsApp Us</a>
+239:                 <button onClick={() => { setMobileMenuOpen(false); onPortalOpen(); }} className="mt-2 bg-white text-black font-semibold rounded-lg py-3 flex items-center justify-center gap-2">
+240:                   <Lock className="w-4 h-4" /> Client Portal
+241:                 </button>
+242:               </div>
+243:             </motion.div>
+244:           )}
+245:         </AnimatePresence>
+246:       </nav>
+247:     </header>
+248:   );
+249: }
+250: 
+251: // --- BOOK CALL BUTTON ---
+252: function BookCallButton() {
+253:   const [isHovered, setIsHovered] = useState(false);
+254:   return (
+255:     <motion.a
+256:       href={WA_BASE}
+257:       target="_blank"
+258:       rel="noopener noreferrer"
+259:       onMouseEnter={() => setIsHovered(true)}
+260:       onMouseLeave={() => setIsHovered(false)}
+261:       whileTap={{ scale: 0.95 }}
+262:       transition={SPRING_MICRO}
+263:       className="relative flex h-14 items-center overflow-hidden rounded-full bg-white px-2 pr-6 font-sans font-medium text-[15px] text-black shadow-lg cursor-pointer w-full sm:w-auto"
+264:     >
+265:       <motion.div animate={{ width: isHovered ? 72 : 48 }} transition={SPRING_MICRO} className="relative flex items-center h-10 ml-1">
+266:         <motion.div animate={{ x: isHovered ? -2 : 0 }} transition={SPRING_MICRO} className="absolute z-20 h-9 w-9 rounded-full border-2 border-white overflow-hidden bg-gray-200">
+267:           <img src="/harsh_avatar.png" className="w-full h-full object-cover object-top" alt="CA Harsh Manek" />
+268:         </motion.div>
+269:         <motion.div animate={{ x: isHovered ? 34 : 16 }} transition={SPRING_MICRO} className="absolute z-10 h-9 w-9 rounded-full border-2 border-white overflow-hidden bg-zinc-700 flex items-center justify-center">
+270:           <User className="w-4 h-4 text-white/60" />
+271:         </motion.div>
+272:         <motion.div
+273:           animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8, rotate: isHovered ? 180 : 0, x: 20, y: "-50%" }}
+274:           style={{ top: "50%" }}
+275:           transition={SPRING_MICRO}
+276:           className="absolute z-30 flex h-6 w-6 items-center justify-center rounded-full bg-black text-white"
+277:         >
+278:           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+279:         </motion.div>
+280:       </motion.div>
+281:       <span className="ml-3 font-semibold tracking-tight">Schedule Consultation</span>
+282:     </motion.a>
+283:   );
+284: }
+285: 
+286: // --- HERO PORTRAIT (IMPROVED) ---
+287: function HeroPortrait() {
+288:   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+289:   const cardRef = useRef<HTMLDivElement>(null);
+290: 
+291:   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+292:     if (!cardRef.current) return;
+293:     const rect = cardRef.current.getBoundingClientRect();
+294:     const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
+295:     const y = -((e.clientY - rect.top) / rect.height - 0.5) * 20;
+296:     setMousePos({ x, y });
+297:   }, []);
+298: 
+299:   const handleMouseLeave = useCallback(() => {
+300:     setMousePos({ x: 0, y: 0 });
+301:   }, []);
+302: 
+303:   return (
+304:     <motion.div
+305:       initial={{ opacity: 0, x: 40, filter: 'blur(10px)' }}
+306:       animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+307:       transition={{ ...SPRING_HEAVY, delay: 0.3 }}
+308:       className="flex-1 w-full flex justify-center lg:justify-end mt-12 lg:mt-0"
+309:     >
+310:       <div
+311:         ref={cardRef}
+312:         className="relative w-full max-w-[300px] sm:max-w-[360px]"
+313:         onMouseMove={handleMouseMove}
+314:         onMouseLeave={handleMouseLeave}
+315:       >
+316:         {/* Ambient glow */}
+317:         <div className="absolute inset-0 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
+318: 
+319:         {/* 3D tilt card */}
+320:         <motion.div
+321:           animate={{
+322:             rotateX: mousePos.y,
+323:             rotateY: mousePos.x,
+324:           }}
+325:           transition={{ type: "spring", stiffness: 180, damping: 25, mass: 0.5 }}
+326:           style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+327:           className="relative rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(255,255,255,0.04)]"
+328:         >
+329:           {/* Top edge highlight */}
+330:           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent z-20 pointer-events-none" />
+331:           {/* Bottom fade */}
+332:           <div className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent z-20 pointer-events-none" />
+333: 
+334:           <img
+335:             src="/harsh_nobg.png"
+336:             alt="CA Harsh Manek"
+337:             className="w-full h-auto object-cover relative z-10 block"
+338:           />
+339: 
+340:           {/* Badge overlay */}
+341:           <div className="absolute bottom-6 left-6 right-6 z-30 flex flex-wrap items-end justify-between gap-3 p-2">
+342:             <div className="glass-card px-4 py-2.5 flex-shrink-0">
+343:               <span className="block font-sans font-bold text-white text-sm">CA Harsh Manek</span>
+344:               <span className="block font-mono text-[10px] text-white/50 uppercase tracking-widest">B.Com, FCA · Est. 2016</span>
+345:             </div>
+346:             <div className="glass-card px-3 py-2 text-center flex-shrink-0">
+347:               <span className="block font-sans font-bold text-white text-lg leading-none">FCA</span>
+348:               <span className="block font-mono text-[9px] text-white/70 uppercase tracking-widest">Chartered Accountant</span>
+349:             </div>
+350:           </div>
+351:         </motion.div>
+352:       </div>
+353:     </motion.div>
+354:   );
+355: }
+356: 
+357: // --- HERO ---
+358: function Hero() {
+359:   return (
+360:     <section className="relative min-h-screen flex flex-col justify-center px-6 pt-36 pb-24 overflow-hidden">
+361:       <div className="blob bg-zinc-600/40 w-[700px] h-[700px] top-[-150px] left-[-250px]" />
+362:       <div className="blob bg-slate-500/20 w-[500px] h-[500px] bottom-[-100px] right-[-200px]" />
+363: 
+364:       <div className="z-10 max-w-7xl mx-auto w-full flex flex-col lg:flex-row items-center gap-16">
+365:         <motion.div
+366:           initial={{ opacity: 0, x: -30 }}
+367:           animate={{ opacity: 1, x: 0 }}
+368:           transition={SPRING_HEAVY}
+369:           className="flex-1 flex flex-col items-start text-left w-full"
+370:         >
+371:           <div className="px-4 py-2 mb-8 rounded-full border border-white/10 bg-white/[0.05] backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]">
+372:             <span className="font-mono text-[11px] uppercase tracking-widest text-white/70">
+373:               Chartered Accountant · Rajkot · Est. 2016
+374:             </span>
+375:           </div>
+376: 
+377:           <h1 className="text-5xl sm:text-6xl md:text-7xl font-['Poppins'] font-extrabold tracking-tight leading-[1.05] text-white mb-6">
+378:             Precision in <br />
+379:             <span className="font-serif italic text-white/50 font-normal">compliance &</span><br />
+380:             financial growth.
+381:           </h1>
+382: 
+383:           <p className="text-base sm:text-lg text-white/70 max-w-xl font-sans tracking-tight mb-10 leading-relaxed">
+384:             Harsh Manek & Co. provides professional taxation, audit, GST, and business advisory services from Rajkot since 2016. We handle the complexity, so you can focus on what matters.
+385:           </p>
+386: 
+387:           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full sm:w-auto">
+388:             <BookCallButton />
+389:             <motion.a
+390:               href="/#services"
+391:               whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)" }}
+392:               whileTap={{ scale: 0.98 }}
+393:               transition={SPRING_MICRO}
+394:               className="flex h-14 items-center justify-center rounded-full border border-white/15 bg-transparent px-8 font-sans font-medium text-sm text-white transition-colors w-full sm:w-auto"
+395:             >
+396:               Explore Services <ChevronDown className="w-4 h-4 ml-2" />
+397:             </motion.a>
+398:           </div>
+399: 
+400:           {/* Trust badges */}
+401:           <div className="mt-12 flex flex-wrap gap-3">
+402:             {[
+403:               { icon: ShieldCheck, label: "ICAI Registered" },
+404:               { icon: Scale, label: "7+ Years Experience" },
+405:               { icon: CheckCircle2, label: "FCA & DISA Qualified" },
+406:             ].map(({ icon: Icon, label }) => (
+407:               <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08]">
+408:                 <Icon className="w-3.5 h-3.5 text-white/70" />
+409:                 <span className="font-mono text-[11px] uppercase tracking-widest text-white/70">{label}</span>
+410:               </div>
+411:             ))}
+412:           </div>
+413:         </motion.div>
+414: 
+415:         <HeroPortrait />
+416:       </div>
+417:     </section>
+418:   );
+419: }
+420: 
+421: // --- SERVICES DATA (EXPANDED) ---
+422: const SERVICES = [
+423:   {
+424:     num: "01",
+425:     icon: BookOpen,
+426:     title: "Accounting & Bookkeeping",
+427:     desc: "Maintain perfectly organized, GAAP-compliant books so you always know where your business stands, and where it's heading. We handle daily entries, bank reconciliation, ledger management, MIS reports, and year-end closing.",
+428:     documents: [
+429:       "Bank statements (last 12 months)",
+430:       "Purchase invoices & vouchers",
+431:       "Sales invoices & receipts",
+432:       "Expense bills (petrol, utilities, rent)",
+433:       "Salary & payroll records",
+434:       "Previous year's balance sheet",
+435:     ],
+436:     process: ["Initial data collection & setup", "Monthly bookkeeping entries", "Bank reconciliation", "MIS report delivery", "Year-end finalization & filing"],
+437:   },
+438:   {
+439:     num: "02",
+440:     icon: Receipt,
+441:     title: "Direct Taxation (Income Tax)",
+442:     desc: "Smart, proactive tax planning ensures you pay exactly what you legally owe, and not a rupee more. We handle ITR filing, advance tax computation, TDS compliance, scrutiny responses, and appeal representation before the CIT.",
+443:     documents: [
+444:       "PAN & Aadhaar card",
+445:       "Form 16 / Form 16A (salaried clients)",
+446:       "Capital gains statements (stocks, property)",
+447:       "Rental income documents",
+448:       "Investment proofs (80C, 80D, NPS)",
+449:       "Previous year's ITR acknowledgment",
+450:       "Bank interest certificates",
+451:     ],
+452:     process: ["Income source analysis", "Regime selection (Old vs New)", "Deduction maximization", "Advance tax calculation", "ITR filing & acknowledgment"],
+453:   },
+454:   {
+455:     num: "03",
+456:     icon: Landmark,
+457:     title: "Indirect Taxation (GST)",
+458:     desc: "End-to-end GST lifecycle management: registration, monthly/quarterly return filing (GSTR-1, 3B, 9, 9C), ITC reconciliation, and GST audit representation. We ensure zero-penalty compliance at all times.",
+459:     documents: [
+460:       "PAN card & business registration proof",
+461:       "Aadhaar of proprietor / directors",
+462:       "Electricity bill of business premises",
+463:       "Cancelled cheque / bank passbook",
+464:       "Digital Signature Certificate (if applicable)",
+465:       "Purchase & sales register (for filing)",
+466:     ],
+467:     process: ["GST registration", "Invoice structuring & HSN mapping", "Monthly GSTR-1 & 3B filing", "Annual GSTR-9 / 9C reconciliation", "Notice response & departmental audit"],
+468:   },
+469:   {
+470:     num: "04",
+471:     icon: ShieldCheck,
+472:     title: "Auditing & Assurance",
+473:     desc: "Independent, rigorous audits that build unshakeable trust with banks, investors, and government authorities. We conduct statutory audits, tax audits (under Sec. 44AB), internal audits, and stock audits across sectors.",
+474:     documents: [
+475:       "Audited books for prior year",
+476:       "Trial balance & ledger",
+477:       "Fixed asset register",
+478:       "Stock & inventory records",
+479:       "Loan agreements & liability documents",
+480:       "Board resolutions (for companies)",
+481:     ],
+482:     process: ["Engagement letter & planning", "Financial statement scrutiny", "Verification of internal controls", "Management representation letter", "Audit report issuance & filing"],
+483:   },
+484:   {
+485:     num: "05",
+486:     icon: Briefcase,
+487:     title: "Corporate Advisory & Compliance",
+488:     desc: "From incorporation to MCA filings, ROC annual returns, and secretarial compliance: we keep your company fully clean with the Ministry of Corporate Affairs. Includes PVT LTD, LLP, and OPC registrations.",
+489:     documents: [
+490:       "Identity & address proof of all directors",
+491:       "Proposed company name (3 options)",
+492:       "Business activity description",
+493:       "Registered office address proof",
+494:       "Subscriber sheet & MOA/AOA draft",
+495:       "NOC from property owner",
+496:     ],
+497:     process: ["Name reservation (RUN)", "MOA/AOA drafting", "SPICe+ form filing", "PAN & TAN application", "Annual ROC returns & statutory maintenance"],
+498:   },
+499:   {
+500:     num: "06",
+501:     icon: FileText,
+502:     title: "Digital Signature (DSC)",
+503:     desc: "Get your Class 2 or Class 3 Digital Signature Certificate issued within 24 hours for income tax filings, GST, MCA, tender submissions, and e-procurement portals. Fully paperless and Aadhaar-verified.",
+504:     documents: [
+505:       "PAN card copy",
+506:       "Aadhaar card copy",
+507:       "Passport-size photo",
+508:       "Mobile number linked to Aadhaar",
+509:       "Email address",
+510:     ],
+511:     process: ["Document verification", "Video KYC / Aadhaar OTP verification", "CA counter-signature", "DSC token dispatch within 24 hrs", "Installation support"],
+512:   },
+513:   {
+514:     num: "07",
+515:     icon: TrendingUp,
+516:     title: "Project Finance & CMA Data",
+517:     desc: "Credit Monitoring Arrangement (CMA) data preparation, Detailed Project Reports (DPR), and documentation support for working capital limits (CC/OD) and term loans with commercial banks.",
+518:     documents: [
+519:       "Audited financial statements (last 3 years)",
+520:       "Provisional balance sheet & P&L",
+521:       "Sanction letters of existing bank facilities",
+522:       "Quotations for machinery/capital expenditure",
+523:       "Projected sales and operational estimates",
+524:       "GST returns summary (last 12 months)",
+525:     ],
+526:     process: ["Financial data assessment", "Capacity & operational modeling", "CMA Data formulation & ratio benchmark review", "Detailed Project Report (DPR) preparation", "Bank credit appraisal assistance"],
+527:   },
+528:   {
+529:     num: "08",
+530:     icon: Building2,
+531:     title: "Business Formation & Structuring",
+532:     desc: "End-to-end guidance on selecting and setting up the ideal legal structure for your enterprise: Private Limited Company, LLP, OPC, or Partnership firm with complete statutory registrations.",
+533:     documents: [
+534:       "Identity & address proofs of directors/partners",
+535:       "Proposed entity name choices",
+536:       "Business objective and scope clause",
+537:       "Office address utility bill & NOC",
+538:       "Passport-size photographs",
+539:     ],
+540:     process: ["Structure suitability evaluation", "Name approval (RUN/SPICe+)", "Drafting MOA/AOA or Partnership Deed", "Certificate of Incorporation issuance", "PAN, TAN & GST registration"],
+541:   },
+542: ];
+543: 
+544: // Statutory Compliance Calendar Deadlines Dataset
+545: const STATUTORY_DEADLINES = [
+546:   {
+547:     id: "q1-adv-tax",
+548:     date: "15th June",
+549:     quarter: "Q1 FY 2024-25",
+550:     title: "Advance Tax (1st Installment)",
+551:     desc: "15% of estimated net tax liability payable for individuals and corporate assessees under Section 208/211.",
+552:     category: "Income Tax",
+553:     badge: "Advance Tax",
+554:   },
+555:   {
+556:     id: "itr-non-audit",
+557:     date: "July 31",
+558:     quarter: "AY 2024-25",
+559:     title: "ITR Filing (Non-Audit Assessees)",
+560:     desc: "Mandatory statutory deadline for filing returns u/s 139(1) for salaried professionals, HUFs, and non-audit entities.",
+561:     category: "Income Tax",
+562:     badge: "July 31 Deadline",
+563:   },
+564:   {
+565:     id: "q2-adv-tax",
+566:     date: "15th September",
+567:     quarter: "Q2 FY 2024-25",
+568:     title: "Advance Tax (2nd Installment)",
+569:     desc: "45% cumulative advance tax liability payable to prevent interest chargeability under Section 234C.",
+570:     category: "Income Tax",
+571:     badge: "Advance Tax",
+572:   },
+573:   {
+574:     id: "tax-audit-report",
+575:     date: "September 30",
+576:     quarter: "Tax Audit Due",
+577:     title: "Tax Audit Report u/s 44AB",
+578:     desc: "Electronic filing of Tax Audit reports in Form 3CA/3CB and Form 3CD for business entities and professionals.",
+579:     category: "Audit",
+580:     badge: "Tax Audit",
+581:   },
+582:   {
+583:     id: "gstr-3b-monthly",
+584:     date: "20th of every month",
+585:     quarter: "Monthly Recurring",
+586:     title: "GSTR-3B Monthly Return Filing",
+587:     desc: "Monthly summary return and net tax liability discharge due by the 20th of subsequent month for regular GST taxpayers.",
+588:     category: "GST",
+589:     badge: "GSTR-3B by 20th",
+590:   },
+591:   {
+592:     id: "mca-roc-aoc4",
+593:     date: "October 30",
+594:     quarter: "MCA Compliance",
+595:     title: "MCA ROC Annual Return (Form AOC-4)",
+596:     desc: "Mandatory annual statutory filing of audited balance sheet and profit & loss account with ROC within 30 days of AGM.",
+597:     category: "Corporate",
+598:     badge: "ROC Annual Return",
+599:   },
+600:   {
+601:     id: "itr-audit-corporate",
+602:     date: "October 31",
+603:     quarter: "Corporate Audit Due",
+604:     title: "ITR Filing (Audit & Corporate Cases)",
+605:     desc: "Statutory income tax return filing deadline for corporate taxpayers and auditees covered u/s 44AB.",
+606:     category: "Income Tax",
+607:     badge: "October 31 Deadline",
+608:   },
+609:   {
+610:     id: "q3-adv-tax",
+611:     date: "15th December",
+612:     quarter: "Q3 FY 2024-25",
+613:     title: "Advance Tax (3rd Installment)",
+614:     desc: "75% cumulative advance tax liability payable before third quarter close.",
+615:     category: "Income Tax",
+616:     badge: "Advance Tax",
+617:   },
+618:   {
+619:     id: "belated-revised-itr",
+620:     date: "December 31",
+621:     quarter: "AY 2024-25",
+622:     title: "Belated / Revised Return Deadline",
+623:     desc: "Final statutory date to file belated ITR u/s 139(4) (subject to Section 234F fees) or revised return u/s 139(5).",
+624:     category: "Income Tax",
+625:     badge: "December 31 Belated",
+626:   },
+627:   {
+628:     id: "q4-adv-tax",
+629:     date: "15th March",
+630:     quarter: "Q4 FY 2024-25",
+631:     title: "Advance Tax (4th Installment)",
+632:     desc: "100% final cumulative advance tax installment before financial year close on March 31.",
+633:     category: "Income Tax",
+634:     badge: "Advance Tax",
+635:   },
+636: ];
+637: 
+638: // Service Card with expandable checklist
+639: function ServiceCard({ service, index }: { service: typeof SERVICES[0]; index: number }) {
+640:   const [expanded, setExpanded] = useState(false);
+641:   const [activeTab, setActiveTab] = useState<"docs" | "process">("docs");
+642:   const Icon = service.icon;
+643:   const isEven = index % 2 === 0;
+644: 
+645:   return (
+646:     <motion.div
+647:       initial={{ opacity: 0, y: 24 }}
+648:       whileInView={{ opacity: 1, y: 0 }}
+649:       viewport={{ once: true, margin: "-80px" }}
+650:       transition={{ ...SPRING_SNAPPY, delay: index * 0.05 }}
+651:       className={`mb-12 relative flex flex-col md:flex-row items-start ${isEven ? "md:flex-row-reverse" : ""}`}
+652:     >
+653:       {/* Timeline dot */}
+654:       <div className="absolute left-4 md:left-1/2 w-4 h-4 rounded-full border-2 border-[#050505] bg-white -translate-x-1/2 z-10 mt-1.5" />
+655: 
+656:       <div className={`w-full md:w-1/2 ${isEven ? "md:pl-16" : "md:pr-16"}`}>
+657:         <div
+658:           role="button"
+659:           tabIndex={0}
+660:           aria-expanded={expanded}
+661:           onKeyDown={(e) => {
+662:             if (e.key === "Enter" || e.key === " ") {
+663:               e.preventDefault();
+664:               setExpanded(!expanded);
+665:             }
+666:           }}
+667:           className="glass-card p-6 sm:p-8 group cursor-pointer hover:bg-white/[0.07] transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+668:           onClick={() => setExpanded(!expanded)}
+669:         >
+670:           <div className="flex items-start justify-between gap-4 mb-3">
+671:             <div>
+672:               <span className="font-serif italic text-3xl text-white/50 mb-2 block group-hover:text-white/80 transition-colors">{service.num}</span>
+673:               <div className="flex items-center gap-2.5 mb-2">
+674:                 <Icon className="w-5 h-5 text-white/50" />
+675:                 <h3 className="text-xl sm:text-2xl font-['Poppins'] font-bold tracking-tight text-white">{service.title}</h3>
+676:               </div>
+677:             </div>
+678:             <motion.div
+679:               animate={{ rotate: expanded ? 180 : 0 }}
+680:               transition={SPRING_MICRO}
+681:               className="flex-shrink-0 mt-1"
+682:             >
+683:               <ChevronDown className="w-5 h-5 text-white/70" />
+684:             </motion.div>
+685:           </div>
+686: 
+687:           <p className="text-sm sm:text-base text-white/50 font-sans leading-relaxed mb-4">{service.desc}</p>
+688: 
+689:           {/* CTA to WhatsApp */}
+690:           <a
+691:             href={`https://wa.me/919033440008?text=Hey%20sir%2C%20I%20have%20a%20query%20regarding%20${encodeURIComponent(service.title)}.`}
+692:             target="_blank"
+693:             rel="noopener noreferrer"
+694:             onClick={(e) => e.stopPropagation()}
+695:             className="inline-flex items-center gap-2 text-[13px] font-mono uppercase tracking-wider text-white/70 hover:text-white transition-colors group-hover:text-white/90"
+696:           >
+697:             Enquire about this service <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+698:           </a>
+699: 
+700:           {/* Expandable checklist */}
+701:           <AnimatePresence>
+702:             {expanded && (
+703:               <motion.div
+704:                 initial={{ height: 0, opacity: 0 }}
+705:                 animate={{ height: "auto", opacity: 1 }}
+706:                 exit={{ height: 0, opacity: 0 }}
+707:                 transition={SPRING_SNAPPY}
+708:                 className="overflow-hidden mt-6 pt-6 border-t border-white/10"
+709:               >
+710:                 {/* Tab toggle */}
+711:                 <div className="flex gap-2 mb-5" role="tablist" aria-label="Service Detail Views">
+712:                   {([{ key: "docs", label: "📋 Documents Needed" }, { key: "process", label: "⚙️ Our Process" }] as const).map((tab) => (
+713:                     <button
+714:                       key={tab.key}
+715:                       role="tab"
+716:                       aria-selected={activeTab === tab.key}
+717:                       onClick={(e) => { e.stopPropagation(); setActiveTab(tab.key); }}
+718:                       className={`px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${activeTab === tab.key ? "bg-white text-black" : "bg-white/[0.06] text-white/50 hover:text-white border border-white/10"}`}
+719:                     >
+720:                       {tab.label}
+721:                     </button>
+722:                   ))}
+723:                 </div>
+724: 
+725:                 <AnimatePresence mode="wait">
+726:                   {activeTab === "docs" ? (
+727:                     <motion.ul
+728:                       key="docs"
+729:                       initial={{ opacity: 0, y: 6 }}
+730:                       animate={{ opacity: 1, y: 0 }}
+731:                       exit={{ opacity: 0, y: -6 }}
+732:                       transition={SPRING_MICRO}
+733:                       className="space-y-2"
+734:                     >
+735:                       {service.documents.map((doc) => (
+736:                         <li key={doc} className="flex items-start gap-2.5 text-sm font-sans text-white/60">
+737:                           <CheckCircle2 className="w-4 h-4 text-white/70 flex-shrink-0 mt-0.5" />
+738:                           {doc}
+739:                         </li>
+740:                       ))}
+741:                     </motion.ul>
+742:                   ) : (
+743:                     <motion.ol
+744:                       key="process"
+745:                       initial={{ opacity: 0, y: 6 }}
+746:                       animate={{ opacity: 1, y: 0 }}
+747:                       exit={{ opacity: 0, y: -6 }}
+748:                       transition={SPRING_MICRO}
+749:                       className="space-y-2"
+750:                     >
+751:                       {service.process.map((step, i) => (
+752:                         <li key={step} className="flex items-start gap-3 text-sm font-sans text-white/60">
+753:                           <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/10 text-white/50 flex items-center justify-center font-mono text-[10px]">{i + 1}</span>
+754:                           {step}
+755:                         </li>
+756:                       ))}
+757:                     </motion.ol>
+758:                   )}
+759:                 </AnimatePresence>
+760:               </motion.div>
+761:             )}
+762:           </AnimatePresence>
+763:         </div>
+764:       </div>
+765:     </motion.div>
+766:   );
+767: }
+768: 
+769: // --- DYNAMIC TIMELINE (SERVICES & STATUTORY COMPLIANCE CALENDAR) ---
+770: function DynamicTimeline() {
+771:   const [timelineMode, setTimelineMode] = useState<"services" | "compliance">("services");
+772:   const containerRef = useRef(null);
+773:   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
+774:   const beamHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+775: 
+776:   return (
+777:     <section id="services" ref={containerRef} className="py-24 sm:py-32 px-6 max-w-5xl mx-auto relative z-10">
+778:       <div className="mb-12 sm:mb-16 text-center">
+779:         <p className="font-mono text-[11px] uppercase tracking-widest text-emerald-400 mb-4">
+780:           {timelineMode === "services" ? "Practice Roadmap" : "Statutory Compliance Calendar & Due Dates"}
+781:         </p>
+782:         <h2 className="text-3xl sm:text-4xl md:text-5xl font-['Poppins'] font-extrabold tracking-tight mb-4 flex items-center justify-center gap-3">
+783:           {timelineMode === "services" ? (
+784:             "Core Practice Areas"
+785:           ) : (
+786:             <>
+787:               <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400" />
+788:               <span>Statutory Deadlines & Compliance Calendar</span>
+789:             </>
+790:           )}
+791:         </h2>
+792:         <p className="text-white/60 font-sans text-base max-w-xl mx-auto mb-8">
+793:           {timelineMode === "services"
+794:             ? "Click any service to see the document checklist and our step-by-step process."
+795:             : "Statutory filing deadlines across Income Tax, GST, Tax Audit u/s 44AB, and MCA ROC compliances."}
+796:         </p>
+797: 
+798:         {/* View Switch Toggle */}
+799:         <div className="inline-flex p-1 rounded-full bg-white/5 border border-white/10" role="tablist" aria-label="Timeline Views">
+800:           <button
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

@@ -1,0 +1,20 @@
+# Kadivar & Associates
+
+Kadivar & Associates is an elite Chartered Accountancy firm based in Rajkot, Gujarat, India, led by Founder & Managing Partner CA Irfan Kadivar.
+
+## Core Services
+- Tax Planning & Compliance
+- Statutory Audit
+- GST & Indirect Taxes
+- Corporate Finance
+- Management Consultancy
+- Investment & Wealth
+
+## Philosophy
+We operate as a strategic growth partner, integrating into daily operations to architect tax-efficient structures and mitigate risk before compliance deadlines approach.
+
+## Links
+- About Us: /about
+- How We Work: /how-we-work
+- Contact: /contact
+- Services: /services/[slug]

@@ -1,0 +1,59 @@
+{
+  "name": "buddydesk",
+  "version": "1.0.0",
+  "description": "Internal startup communication app with animated buddy",
+  "main": "src/main/index.js",
+  "author": "BuddyDesk Team",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"vite --config vite.renderer.config.js\" \"wait-on tcp:5173 && electron .\"",
+    "build:renderer": "vite build --config vite.renderer.config.js",
+    "build": "npm run build:renderer && electron-builder",
+    "preview": "vite preview --config vite.renderer.config.js",
+    "mcp": "node mcp/buddydesk-mcp.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "date-fns": "^3.2.0",
+    "electron-store": "8.1.0",
+    "express": "^5.2.1",
+    "firebase": "^10.7.1",
+    "openai": "^6.43.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^28.1.4",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.10",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.buddydesk.app",
+    "productName": "BuddyDesk",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "src/main/**",
+      "src/preload/**",
+      "dist/**",
+      "resources/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "resources/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "resources/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
